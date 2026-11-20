@@ -90,7 +90,7 @@ s.background.fill.fore_color.rgb = BRAND
 text(s, 0.9, 2.0, 11, 1.2, "CareMate", 60, True, WHITE)
 text(s, 0.9, 3.25, 11.5, 1.0, "RAG 챗봇 기반 고객 문의 분석·상담 지원 시스템", 30, False, WHITE)
 text(s, 0.9, 4.5, 11, 0.5, "모르면 지어내지 않고, 근거와 함께 답하거나 사람에게 연결합니다", 18, False, RGBColor(0xDD, 0xDA, 0xFF))
-text(s, 0.9, 6.3, 11, 0.5, "인공지능 응용 시스템 개발 종합 프로젝트 · 최종 발표 2026.12.30 · 발표자 [이름 기입]", 14, False, RGBColor(0xDD, 0xDA, 0xFF))
+text(s, 0.9, 6.3, 11, 0.5, "인공지능 응용 시스템 개발 종합 프로젝트 · 최종 발표 2026.12.30 · 발표자 반재영", 14, False, RGBColor(0xDD, 0xDA, 0xFF))
 s.notes_slide.notes_text_frame.text = "안녕하세요. 쇼핑몰 고객 문의를 문서 근거로 응대하는 RAG 챗봇 CareMate를 발표하겠습니다. 모아마켓은 가상의 쇼핑몰입니다."
 
 # 2 배경
