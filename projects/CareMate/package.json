@@ -1,0 +1,13 @@
+{
+  "name": "caremate",
+  "version": "1.0.0",
+  "description": "CareMate - AI 기반 고객 문의 분석 및 상담 지원 시스템 (RAG 챗봇)",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test/",
+    "eval": "node tools/eval.mjs"
+  }
+}

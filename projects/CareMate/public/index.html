@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CareMate · AI 고객 문의 분석·상담 지원</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo" aria-hidden="true">C</span><div><b>CareMate</b><small>AI 고객 문의 분석·상담 지원 시스템 · 모아마켓(가상)</small></div></div>
+  <nav id="tabs" role="tablist">
+    <button role="tab" data-tab="chat" aria-selected="true">고객 챗봇</button>
+    <button role="tab" data-tab="agent" aria-selected="false">상담원 콘솔 <span id="ticketBadge" class="badge" hidden>0</span></button>
+    <button role="tab" data-tab="dash" aria-selected="false">분석 대시보드</button>
+    <button role="tab" data-tab="kb" aria-selected="false">지식베이스</button>
+  </nav>
+  <div id="status" class="status" title="시스템 상태">연결 확인 중…</div>
+</header>
+
+<main>
+  <section id="tab-chat" class="tab">
+    <div class="chat-layout">
+      <div class="card chat">
+        <div id="log" class="log" aria-live="polite"></div>
+        <div id="chips" class="chips"></div>
+        <form id="form" class="composer" autocomplete="off">
+          <input id="q" maxlength="500" placeholder="궁금한 내용을 입력하세요 (예: 반품 배송비는 누가 내나요?)" aria-label="질문 입력">
+          <button id="send" type="submit">보내기</button>
+        </form>
+        <p class="hint">카드번호·비밀번호는 입력하지 마세요. 전화번호·이메일은 자동으로 가려져 저장됩니다.</p>
+      </div>
+      <aside class="card side" aria-label="AI 분석과 근거">
+        <h2>AI 분석 · 근거</h2>
+        <div id="analysis" class="empty">질문을 보내면 문의 유형, 감정, 우선순위와 답변 근거가 여기에 표시됩니다.</div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="tab-agent" class="tab" hidden>
+    <div class="agent-layout">
+      <div class="card"><h2>접수된 티켓 <button id="reloadTickets" class="ghost">새로고침</button></h2><ul id="tickets" class="tickets"></ul></div>
+      <div class="card" id="ticketDetail"><div class="empty">왼쪽에서 티켓을 선택하세요.</div></div>
+    </div>
+  </section>
+
+  <section id="tab-dash" class="tab" hidden>
+    <div id="kpis" class="kpis"></div>
+    <div class="grid" id="charts"></div>
+  </section>
+
+  <section id="tab-kb" class="tab" hidden>
+    <div class="card">
+      <h2>지식베이스 <small id="kbCount"></small></h2>
+      <input id="kbSearch" class="kb-search" placeholder="검색어를 입력하면 RAG 검색기가 찾은 순서와 점수를 보여 줍니다" aria-label="지식베이스 검색">
+      <div id="kbList" class="kb-list"></div>
+    </div>
+  </section>
+</main>
+<script src="app.js" type="module"></script>
+</body>
+</html>
