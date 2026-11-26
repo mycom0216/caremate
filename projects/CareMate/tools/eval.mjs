@@ -8,7 +8,7 @@ const useLlm = process.argv.includes('--llm');
 const outIdx = process.argv.indexOf('--out');
 const out = outIdx > 0 ? process.argv[outIdx + 1] : null;
 const questions = JSON.parse(readFileSync(`${ROOT}data/eval-questions.json`, 'utf8'));
-const svc = await createServices({ llmEnabled: useLlm });
+const svc = await createServices({ llmEnabled: useLlm, llmModel: process.env.LLM_MODEL ?? 'kanana2:3b' });
 
 const rows = [];
 for (const item of questions) {
