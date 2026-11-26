@@ -34,6 +34,10 @@ npm start
 6. 상담원 콘솔 → 티켓 선택 → "AI 답변 초안" → 등록
 7. 분석 대시보드 확인
 
+## 원격 자동 검증 (2026-11-26)
+
+[GitHub Actions](https://github.com/mycom0216/caremate/actions/runs/45734441591)에서 Node.js 24 환경으로 단위 테스트 30/30 및 API·보안 검사 33/33을 통과했습니다. LLM과 임베딩은 비활성화한 상태입니다. 누락된 데이터는 [복구 기록](docs/DATA_RECONSTRUCTION.md)에 따라 재구성했으며, 기존 2026-11-20 평가와 직접 비교할 수 없습니다. 재구성 데이터의 검색 hit@1 92.1%, hit@4 100%, 분류 22/24(91.7%)를 확인했습니다. [검증 기록](docs/CI_VERIFICATION_2026-11-26.md)을 참고하세요.
+
 ## 테스트와 평가
 
 ```bash
