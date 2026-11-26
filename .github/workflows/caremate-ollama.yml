@@ -1,0 +1,48 @@
+name: CareMate Ollama evaluation
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/caremate-ollama.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: projects/CareMate
+    env:
+      LLM: 'on'
+      EMBEDDINGS: 'off'
+      LLM_MODEL: kanana2:3b
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install and start Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh -o "$RUNNER_TEMP/ollama-install.sh"
+          sh "$RUNNER_TEMP/ollama-install.sh"
+          if ! curl -fsS http://127.0.0.1:11434/api/tags; then
+            nohup ollama serve > "$RUNNER_TEMP/ollama.log" 2>&1 &
+          fi
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:11434/api/tags; then break; fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags
+          ollama pull kanana2:3b
+          ollama list
+      - name: Evaluate actual model
+        run: |
+          node tools/eval.mjs --llm --out evidence/rag-eval-llm-reconstructed.json
+          node --input-type=module -e 'import {readFileSync} from "node:fs"; const r=JSON.parse(readFileSync("evidence/rag-eval-llm-reconstructed.json","utf8")); if (r.summary.llm !== "kanana2:3b" || !(r.summary.generators?.llm > 0)) throw new Error("No confirmed model-generated responses"); console.log(JSON.stringify(r.summary,null,2));'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: caremate-ollama-evaluation
+          path: projects/CareMate/evidence/rag-eval-llm-reconstructed.json
+          if-no-files-found: warn
