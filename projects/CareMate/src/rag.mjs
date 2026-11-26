@@ -13,12 +13,14 @@ export class Retriever {
     this.cacheFile = cacheFile;
     this.useEmbeddings = useEmbeddings;
     this.vectors = null;
+    // 제목에 추가 가중치를 주기 위해 제목 토큰을 두 번 포함한다.
     this.docs = chunks.map((c) => {
       const toks = tokens(`${c.title} ${c.title} ${c.text}`);
       const tf = new Map();
       for (const t of toks) tf.set(t, (tf.get(t) ?? 0) + 1);
       return { tf, len: toks.length };
     });
+    // 문서 길이 정규화와 역문서 빈도 계산에 사용할 통계를 준비한다.
     this.avgLen = this.docs.reduce((s, d) => s + d.len, 0) / (this.docs.length || 1);
     this.df = new Map();
     for (const d of this.docs) for (const t of d.tf.keys()) this.df.set(t, (this.df.get(t) ?? 0) + 1);
@@ -26,6 +28,7 @@ export class Retriever {
 
   get mode() { return this.vectors ? 'hybrid(BM25+embedding)' : 'BM25'; }
 
+  // 여러 문서에서 흔하게 등장하는 토큰의 영향력을 줄인다.
   idf(t) {
     const n = this.df.get(t) ?? 0, N = this.docs.length;
     return Math.log(1 + (N - n + 0.5) / (n + 0.5));
@@ -41,6 +44,7 @@ export class Retriever {
     return (await res.json()).embeddings;
   }
 
+  // 모델명과 문서 내용의 해시로 임베딩 캐시의 유효성을 판단한다.
   async init() {
     if (!this.useEmbeddings) return this;
     const texts = this.chunks.map((c) => `${c.title}\n${c.text}`);
@@ -58,6 +62,7 @@ export class Retriever {
     return this;
   }
 
+  // 토큰별 BM25 점수와 질의 커버리지를 함께 계산한다.
   bm25(query) {
     const q = [...new Set(tokens(query, { query: true }))];
     // 코퍼스에 한 번도 없는 토큰(군말·오탈자)은 영향력을 낮춰 커버리지가 과도하게 떨어지지 않게 합니다.
@@ -76,6 +81,7 @@ export class Retriever {
     });
   }
 
+  // 코퍼스에 없는 핵심 어절의 비율을 계산해 신뢰도 보정에 사용한다.
   oovRatio(query) {
     const ws = words(query).filter((w) => !FILLER.has(w));
     if (!ws.length) return 0;
@@ -86,6 +92,7 @@ export class Retriever {
     return oov.length / ws.length;
   }
 
+  // 어휘 검색과 선택적인 벡터 유사도를 결합해 상위 문서를 선택한다.
   async search(query, k = 4) {
     const lex = this.bm25(query);
     let cos = null;
@@ -114,6 +121,7 @@ export class Retriever {
   }
 }
 
+// 벡터 내적과 크기를 이용하여 코사인 유사도를 반환한다.
 function cosine(a, b) {
   let d = 0, na = 0, nb = 0;
   for (let i = 0; i < a.length; i++) { d += a[i] * b[i]; na += a[i] * a[i]; nb += b[i] * b[i]; }

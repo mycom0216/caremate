@@ -7,6 +7,7 @@ export class OllamaLLM {
     this.available = null;
   }
 
+  // Ollama가 활성화되어 있고 지정 모델을 제공하는지 확인한다.
   async check() {
     if (!this.enabled) return (this.available = false);
     try {
@@ -29,6 +30,7 @@ export class OllamaLLM {
     } catch { /* 무시: 실제 질문에서 다시 시도 */ }
   }
 
+  // 검색 결과와 최근 대화를 모델 요청 메시지로 구성한다.
   async generate(question, hits, history = []) {
     const context = hits.map((h, i) => `[${i + 1}] (${h.chunk.title}) ${h.chunk.text}`).join('\n');
     const system = [
@@ -41,9 +43,11 @@ export class OllamaLLM {
       '[참고 문서]',
       context,
     ].join('\n');
+    // 시스템 지시 뒤에 최근 두 문의와 현재 질문을 배치한다.
     const messages = [{ role: 'system', content: system }];
     for (const h of history.slice(-2)) messages.push({ role: 'user', content: h.question }, { role: 'assistant', content: h.answer });
     messages.push({ role: 'user', content: question });
+    // 모델 응답은 스트리밍 없이 받고 요청 시간 제한을 적용한다.
     const res = await fetch(`${this.url}/api/chat`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ model: this.model, messages, stream: false, options: { temperature: 0, seed: 7, num_predict: 320 } }),
@@ -55,6 +59,7 @@ export class OllamaLLM {
   }
 }
 
+// 어휘 수준의 근거 일치도 검사에 사용할 하한값이다.
 export const GROUNDED_MIN = 0.5;
 
 // 근거 일치도: 답변의 문자 바이그램 중 참고 문서·질문에 실제로 등장하는 비율.
@@ -72,6 +77,7 @@ const numbers = (s) => (String(s).replace(/(\d),(\d)/g, '$1$2').match(/\d+/g) ??
 export function guardAnswer(answer, question, hits) {
   if (!answer || answer.length < 5) return { ok: false, reason: 'empty' };
   if (/근거\s*부족/u.test(answer)) return { ok: false, reason: 'abstain' };
+  // 참고 문서 및 질문의 숫자 집합과 답변 숫자를 대조한다.
   const allowed = new Set(numbers(question + ' ' + hits.map((h) => h.chunk.title + ' ' + h.chunk.text).join(' ')));
   const cites = [...answer.matchAll(/\[(\d+)\]/g)].map((m) => Number(m[1]));
   const body = answer.replace(/\[\d+\]/g, '');
@@ -95,6 +101,7 @@ export function extractiveAnswer(question, hits, maxSentences = 3) {
       scored.push({ s, hi, si, score: overlap / Math.sqrt(st.size || 1) + (hi === 0 ? 0.3 : 0) });
     });
   });
+  // 선택된 문장들은 원래 문서 및 문장 순서로 다시 배치한다.
   const picked = scored.sort((a, b) => b.score - a.score).slice(0, maxSentences).sort((a, b) => a.hi - b.hi || a.si - b.si);
   return picked.map((p) => p.s).join(' ');
 }

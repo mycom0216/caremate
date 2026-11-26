@@ -1,5 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 
+// 주문, 문의, 상담원 티켓 테이블과 조회용 인덱스를 정의한다.
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS orders (
   order_no TEXT PRIMARY KEY, item TEXT NOT NULL, amount INTEGER NOT NULL,
@@ -23,6 +24,7 @@ CREATE INDEX IF NOT EXISTS idx_inq_created ON inquiries(created_at);
 CREATE INDEX IF NOT EXISTS idx_ticket_status ON tickets(status);
 `;
 
+// 빈 DB에서만 사용할 가상의 주문 시연 데이터를 정의한다.
 const SEED_ORDERS = [
   ['MM-1001', '무선 이어폰 모아버즈', 59000, '배송중', '한진택배', '4012-3345-8812', '2026-11-18', '2026-11-21'],
   ['MM-1002', '순면 후드티 (M)', 39000, '상품준비중', null, null, '2026-11-20', '2026-11-23'],
@@ -31,6 +33,7 @@ const SEED_ORDERS = [
   ['MM-1005', '무선 청소기', 189000, '출고완료', '한진택배', '4012-3355-6620', '2026-11-19', '2026-11-22'],
 ];
 
+// DB 연결 및 스키마 초기화를 수행하며 외래키 제약을 활성화한다.
 export function openDb(file = ':memory:') {
   const db = new DatabaseSync(file);
   db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
@@ -48,6 +51,7 @@ export class Store {
 
   order(no) { return this.db.prepare('SELECT * FROM orders WHERE order_no = ?').get(no) ?? null; }
 
+  // 문의 분석과 출처 배열을 JSON 문자열로 직렬화하여 저장한다.
   addInquiry(r) {
     const info = this.db.prepare(`INSERT INTO inquiries
       (session_id, created_at, question, pii_found, category, category_prob, sentiment, priority, reasons, answer, generator, confidence, sources, escalated, latency_ms)
@@ -58,6 +62,7 @@ export class Store {
     return Number(info.lastInsertRowid);
   }
 
+  // 문의 레코드에 연결된 상담원 처리 티켓을 등록한다.
   addTicket(inquiryId, reason, priority) {
     const info = this.db.prepare('INSERT INTO tickets (inquiry_id, created_at, reason, priority) VALUES (?,?,?,?)')
       .run(inquiryId, new Date().toISOString(), reason, priority);
@@ -66,6 +71,7 @@ export class Store {
 
   inquiry(id) { return this.parse(this.db.prepare('SELECT * FROM inquiries WHERE id = ?').get(id)); }
 
+  // 저장된 JSON 필드를 API가 사용할 배열로 복원한다.
   parse(row) {
     if (!row) return null;
     for (const k of ['pii_found', 'reasons', 'sources']) if (k in row) row[k] = JSON.parse(row[k]);
@@ -76,6 +82,7 @@ export class Store {
     return this.db.prepare('SELECT * FROM inquiries ORDER BY id DESC LIMIT ?').all(limit).map((r) => this.parse(r));
   }
 
+  // 티켓과 문의를 결합하여 높은 우선순위부터 반환한다.
   tickets(status) {
     const sql = `SELECT t.*, i.question, i.category, i.sentiment, i.answer AS bot_answer, i.session_id
       FROM tickets t JOIN inquiries i ON i.id = t.inquiry_id ${status ? 'WHERE t.status = ?' : ''}
@@ -85,6 +92,7 @@ export class Store {
 
   ticket(id) { return this.db.prepare('SELECT t.*, i.question, i.category, i.sentiment FROM tickets t JOIN inquiries i ON i.id=t.inquiry_id WHERE t.id = ?').get(id) ?? null; }
 
+  // 열린 티켓에만 조건부 UPDATE를 적용하여 중복 처리를 막는다.
   replyTicket(id, reply) {
     const info = this.db.prepare("UPDATE tickets SET reply = ?, status = 'resolved', replied_at = ? WHERE id = ? AND status = 'open'")
       .run(reply, new Date().toISOString(), id);
@@ -95,10 +103,12 @@ export class Store {
     return this.db.prepare('UPDATE inquiries SET feedback = ? WHERE id = ?').run(helpful ? 1 : 0, id).changes === 1;
   }
 
+  // 최근 문의를 조회한 후 시간순으로 되돌려 대화 문맥을 제공한다.
   history(sessionId, limit = 6) {
     return this.db.prepare('SELECT question, answer FROM inquiries WHERE session_id = ? ORDER BY id DESC LIMIT ?').all(sessionId, limit).reverse();
   }
 
+  // DB 집계 쿼리로 대시보드 지표 및 분포 데이터를 구성한다.
   stats() {
     const q = (sql, ...a) => this.db.prepare(sql).all(...a);
     const total = q('SELECT COUNT(*) c FROM inquiries')[0].c;

@@ -4,6 +4,7 @@ import { tokens } from './text.mjs';
 export class CategoryClassifier {
   constructor() { this.labels = new Map(); this.vocab = new Set(); this.total = 0; }
 
+  // 라벨별 문서 수, 토큰 빈도 및 전체 어휘 집합을 누적한다.
   train(pairs) {
     for (const [label, text] of pairs) {
       const m = this.labels.get(label) ?? { docs: 0, counts: new Map(), tokens: 0 };
@@ -17,6 +18,7 @@ export class CategoryClassifier {
     return this;
   }
 
+  // 로그 확률로 각 라벨의 점수를 계산하여 수치 언더플로를 줄인다.
   predict(text) {
     const toks = tokens(text);
     const V = this.vocab.size;
@@ -26,6 +28,7 @@ export class CategoryClassifier {
       for (const t of toks) s += Math.log(((m.counts.get(t) ?? 0) + 0.5) / (m.tokens + 0.5 * V));
       scores.push([label, s]);
     }
+    // 최대 로그 점수를 빼고 정규화하여 라벨별 상대 확률을 구한다.
     const max = Math.max(...scores.map((x) => x[1]));
     const exp = scores.map(([l, s]) => [l, Math.exp(s - max)]);
     const z = exp.reduce((a, [, e]) => a + e, 0);
@@ -33,6 +36,7 @@ export class CategoryClassifier {
     return { label: ranked[0].label, prob: ranked[0].prob, ranked: ranked.slice(0, 3) };
   }
 
+  // 분리된 평가 문장에서 정답 수와 오분류 방향을 집계한다.
   evaluate(pairs) {
     let ok = 0;
     const confusion = {};
@@ -50,6 +54,7 @@ const URGENT = ['급해', '급합니다', '당장', '빨리', '오늘까지', '�
 const LEGAL = ['신고', '소비자원', '고소', '법적', '환불 안 해주면', '공정위', '변호사'];
 const INCIDENT = ['중복 결제', '이중 결제', '결제 오류', '분실', '파손', '오배송', '도난', '해킹', '개인정보 유출', '못 받았'];
 
+// 규칙에 해당하는 표현과 반복 문장부호로 감정 및 우선순위를 산정한다.
 export function analyzeTone(text) {
   const t = String(text).toLowerCase();
   const hit = (list) => list.filter((w) => t.includes(w));

@@ -4,10 +4,12 @@ import { extname, join, normalize } from 'node:path';
 import { ROOT, createServices } from './src/app.mjs';
 import { HttpError } from './src/chat.mjs';
 
+// 환경변수로 접속 주소를 설정하고 기본값은 로컬 데모 환경에 맞춘다.
 const PORT = Number(process.env.PORT ?? 5200);
 const HOST = process.env.HOST ?? '127.0.0.1';
 mkdirSync(`${ROOT}data`, { recursive: true });
 
+// HTTP 서버가 열리기 전에 검색기, 분류기, 저장소 및 LLM을 초기화한다.
 const svc = await createServices({
   dbFile: process.env.DB_FILE ?? `${ROOT}data/caremate.db`,
   llmEnabled: process.env.LLM !== 'off',
@@ -15,11 +17,13 @@ const svc = await createServices({
   llmModel: process.env.LLM_MODEL ?? 'kanana2:3b',
 });
 
+// 정적 파일의 확장자를 HTTP Content-Type으로 매핑한다.
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json' };
 const json = (res, status, body) => {
   res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
   res.end(JSON.stringify(body));
 };
+// 본문 크기 제한 및 JSON 파싱 실패를 HTTP 오류로 변환한다.
 const readBody = (req) => new Promise((resolve, reject) => {
   let size = 0, tooBig = false; const parts = [];
   // 한도를 넘으면 본문은 버리고(저장 안 함) 끝까지 읽은 뒤 413으로 응답합니다. destroy하면 응답 없이 연결이 끊깁니다.
@@ -30,6 +34,7 @@ const readBody = (req) => new Promise((resolve, reject) => {
 // 연속 호출 방지: 세션당 1초에 1회 질문
 const lastAsk = new Map();
 
+// 요청 메서드와 경로를 기준으로 서비스 기능에 연결한다.
 async function api(req, res, url) {
   const m = req.method, p = url.pathname;
   if (m === 'GET' && p === '/api/status') {
@@ -76,6 +81,7 @@ async function api(req, res, url) {
   throw new HttpError(404, '없는 API입니다.');
 }
 
+// API와 정적 파일 요청을 분리하고 예외를 HTTP 응답으로 변환한다.
 const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');

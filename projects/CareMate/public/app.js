@@ -1,5 +1,6 @@
 // 화면 구성: 모든 사용자 입력·서버 문자열은 textContent로만 넣어 XSS를 막습니다.
 const $ = (s) => document.querySelector(s);
+// DOM 요소를 직접 생성하고 문자열을 텍스트 노드로 삽입한다.
 const h = (tag, attrs = {}, ...kids) => {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -8,18 +9,21 @@ const h = (tag, attrs = {}, ...kids) => {
   for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
   return el;
 };
+// JSON 요청과 응답 오류 처리를 공통 함수로 묶는다.
 const api = async (path, opts) => {
   const res = await fetch(path, opts && { ...opts, headers: { 'content-type': 'application/json' }, body: JSON.stringify(opts.body) });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || `요청 실패(${res.status})`);
   return data;
 };
+// 탭의 세션 저장소에 임의 세션 식별자를 유지한다.
 const sessionId = (() => {
   try { let s = sessionStorage.getItem('cm-sid'); if (!s) { s = 'web-' + crypto.randomUUID(); sessionStorage.setItem('cm-sid', s); } return s; } catch { return 'web-' + crypto.randomUUID(); }
 })();
 
 // ---- 탭 ----
 const tabs = ['chat', 'agent', 'dash', 'kb'];
+// 활성 탭만 표시하고 필요한 서버 데이터를 불러온다.
 function show(name) {
   for (const t of tabs) $('#tab-' + t).hidden = t !== name;
   document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
@@ -39,6 +43,7 @@ addMsg('bot', '안녕하세요! 모아마켓 상담 챗봇입니다. 배송, 교
 
 $('#form').addEventListener('submit', (e) => { e.preventDefault(); const v = $('#q').value.trim(); if (v) ask(v); });
 
+// 사용자 질문을 표시한 뒤 응답 및 분석 영역을 갱신한다.
 async function ask(text) {
   $('#q').value = '';
   addMsg('me', text);
@@ -56,6 +61,7 @@ async function ask(text) {
   } finally { $('#send').disabled = false; $('#q').focus(); log.scrollTop = log.scrollHeight; }
 }
 
+// 근거 문서, 상담원 티켓 및 고객 피드백 조작 요소를 구성한다.
 function metaRow(r) {
   const fb = h('span', { class: 'fb' });
   const mk = (val, label) => h('button', { type: 'button', title: val ? '도움이 됐어요' : '도움이 안 됐어요', onclick: async (e) => {
@@ -70,6 +76,7 @@ function metaRow(r) {
 }
 
 const priLabel = { high: ['높음', 'bad'], medium: ['보통', 'warn'], low: ['낮음', 'ok'] };
+// 선택한 답변의 분류, 감정, 신뢰도와 원문 근거를 보여 준다.
 function renderAnalysis(r, bubble) {
   log.querySelectorAll('.msg.active').forEach((m) => m.classList.remove('active')); bubble.classList.add('active');
   const a = r.analysis, [pl, pc] = priLabel[a.priority];
@@ -92,6 +99,7 @@ async function refreshBadge() {
   try { const t = await api('/api/tickets?status=open'); const b = $('#ticketBadge'); b.hidden = t.length === 0; b.textContent = t.length; return t; } catch { return []; }
 }
 let selected = null;
+// 상담원 티켓 목록을 다시 조회하고 선택 상태를 유지한다.
 async function loadTickets() {
   const all = await api('/api/tickets');
   await refreshBadge();
@@ -105,6 +113,7 @@ async function loadTickets() {
   }
   const cur = all.find((t) => t.id === selected); if (cur) renderTicket(cur);
 }
+// 상담원이 초안을 검토하고 답변을 등록할 수 있게 한다.
 function renderTicket(t) {
   const area = h('textarea', { placeholder: '답변을 작성하거나 AI 초안을 불러오세요', disabled: t.status === 'resolved' }, t.reply ?? '');
   const info = h('div', { class: 'empty' });
@@ -128,6 +137,7 @@ function bars(title, rows, fmt = (x) => x) {
   const max = Math.max(1, ...rows.map((r) => r.count));
   return h('div', { class: 'card' }, h('h2', {}, title), rows.length ? rows.map((r) => h('div', { class: 'bar' }, h('span', { title: fmt(r.label) }, fmt(r.label)), h('div', {}, h('i', { style: `width:${(r.count / max) * 100}%` })), h('span', {}, r.count))) : h('div', { class: 'empty' }, '데이터 없음'));
 }
+// 서버의 집계 결과를 KPI와 막대 차트로 변환한다.
 async function loadDash() {
   const s = await api('/api/stats');
   const rated = s.helpful + s.unhelpful;
@@ -139,6 +149,7 @@ async function loadDash() {
 
 // ---- 지식베이스 ----
 let kbAll = null;
+// 지식베이스를 최초 한 번 가져와 클라이언트에 보관한다.
 async function loadKb() {
   kbAll ??= await api('/api/kb'); $('#kbCount').textContent = `${kbAll.length}개 문서 조각`;
   renderKb(kbAll.map((c) => ({ ...c })));

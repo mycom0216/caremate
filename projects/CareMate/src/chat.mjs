@@ -11,6 +11,7 @@ const SMALLTALK = [
 ];
 const FOLLOW_UP =/^(그럼|그러면|그건|그거|그럼요|그리고|아니|근데)/u;
 
+// DB의 주문 상태에 따라 취소 가능 여부와 배송 안내를 구성한다.
 export function describeOrder(o) {
   const money = o.amount.toLocaleString('ko-KR');
   const base = `주문번호 ${o.order_no}(${o.item}, ${money}원)은 현재 '${o.status}' 상태입니다.`;
@@ -29,6 +30,7 @@ export class ChatService {
     Object.assign(this, { retriever, store, classifier, llm, threshold });
   }
 
+  // 짧은 후속 질문에는 직전 질문을 결합하여 검색 문맥을 보완한다.
   retrievalQuery(question, history) {
     const last = history.at(-1);
     if (last && (question.length < 12 || FOLLOW_UP.test(question))) return `${last.question} ${question}`;
@@ -57,11 +59,13 @@ export class ChatService {
     return { answer: extractiveAnswer(question, hits), generator: 'extractive', cited: hits.slice(0, 2) };
   }
 
+  // 입력 검증부터 응답 생성, 저장 및 상담원 티켓 등록까지 조정한다.
   async ask(sessionId, rawQuestion) {
     const t0 = Date.now();
     const question0 = String(rawQuestion ?? '').trim();
     if (!question0) throw new HttpError(400, '질문을 입력해 주세요.');
     if (question0.length > 500) throw new HttpError(400, '질문은 500자 이내로 입력해 주세요.');
+    // 저장과 모델 호출 전에 개인정보를 마스킹한다.
     const { masked: question, found } = maskPII(question0);
     const history = this.store.history(sessionId);
 
@@ -70,6 +74,7 @@ export class ChatService {
 
     let answer, generator, sources = [], confidence = 0, escalateReason = null;
 
+    // 상담원 요청, 잡담, 주문번호 조회를 문서 검색보다 먼저 분기한다.
     const orderNo = ORDER_RE.exec(question)?.[0].toUpperCase();
     if (wantsHuman(question)) {
       answer = '상담원 연결을 요청하셨어요. 문의를 접수했으며 영업일 기준 24시간 안에 답변드리겠습니다. 운영시간은 평일 9시~18시(점심 12~13시)입니다.';
@@ -87,6 +92,7 @@ export class ChatService {
         generator = 'order-lookup'; confidence = 1;
       }
     } else {
+      // 검색 신뢰도가 임계값에 미달하면 근거 부족 응답으로 전환한다.
       const { hits, confidence: conf } = await this.retriever.search(this.retrievalQuery(question, history), 4);
       confidence = conf;
       if (conf < this.threshold) {
@@ -108,11 +114,13 @@ export class ChatService {
     if (!escalateReason && (tone.priority === 'high' || tone.incident)) escalateReason = 'priority';
     if (escalateReason === 'priority') answer += ' 불편을 드려 죄송합니다. 우선 확인이 필요한 문의로 상담원에게도 전달했습니다.';
 
+    // 분석 결과와 답변 근거, 처리 시간을 문의 레코드로 기록한다.
     const id = this.store.addInquiry({
       sessionId, question, piiFound: found, category: cat.label, categoryProb: Number(cat.prob.toFixed(3)),
       sentiment: tone.sentiment, priority: tone.priority, reasons: tone.reasons, answer, generator,
       confidence: Number(confidence.toFixed(3)), sources, escalated: !!escalateReason, latencyMs: Date.now() - t0,
     });
+    // 에스컬레이션 사유가 있을 때만 상담원 티켓을 별도로 생성한다.
     let ticketId = null;
     if (escalateReason) ticketId = this.store.addTicket(id, escalateReason, escalateReason === 'priority' ? 'high' : tone.priority === 'low' ? 'medium' : tone.priority);
 
