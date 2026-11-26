@@ -1,0 +1,47 @@
+name: CareMate verification
+on:
+  push:
+    paths:
+      - 'projects/CareMate/**'
+      - '.github/workflows/caremate-ci.yml'
+  pull_request:
+    paths:
+      - 'projects/CareMate/**'
+      - '.github/workflows/caremate-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: projects/CareMate
+    env:
+      LLM: 'off'
+      EMBEDDINGS: 'off'
+      HOST: '127.0.0.1'
+      PORT: '5200'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Unit tests
+        run: npm test
+      - name: Retrieval and classification evaluation
+        run: npm run eval
+      - name: API and security checks
+        shell: bash
+        run: |
+          export DB_FILE="$RUNNER_TEMP/caremate-ci.db"
+          node server.mjs > "$RUNNER_TEMP/caremate-server.log" 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true; cat "$RUNNER_TEMP/caremate-server.log"' EXIT
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:5200/api/status >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:5200/api/status
+          node tools/api-check.mjs
