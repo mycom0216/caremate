@@ -2,7 +2,11 @@ name: CareMate Ollama evaluation
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/caremate-ollama.yml']
+    paths:
+      - '.github/workflows/caremate-ollama.yml'
+      - 'projects/CareMate/data/eval-questions.json'
+      - 'projects/CareMate/data/inquiries-labeled.json'
+      - 'projects/CareMate/tools/eval.mjs'
   workflow_dispatch:
 permissions:
   contents: read
@@ -38,11 +42,11 @@ jobs:
           ollama list
       - name: Evaluate actual model
         run: |
-          node tools/eval.mjs --llm --out evidence/rag-eval-llm-reconstructed.json
-          node --input-type=module -e 'import {readFileSync} from "node:fs"; const r=JSON.parse(readFileSync("evidence/rag-eval-llm-reconstructed.json","utf8")); if (r.summary.llm !== process.env.LLM_MODEL || !(r.summary.generators?.llm > 0)) throw new Error("No confirmed model-generated responses"); console.log(JSON.stringify(r.summary,null,2));'
+          node tools/eval.mjs --llm --out evidence/rag-eval-llm-original-qwen.json
+          node --input-type=module -e 'import {readFileSync} from "node:fs"; const r=JSON.parse(readFileSync("evidence/rag-eval-llm-original-qwen.json","utf8")); if (r.summary.llm !== process.env.LLM_MODEL || !(r.summary.generators?.llm > 0)) throw new Error("No confirmed model-generated responses"); console.log(JSON.stringify(r.summary,null,2));'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: caremate-ollama-evaluation
-          path: projects/CareMate/evidence/rag-eval-llm-reconstructed.json
+          name: caremate-ollama-original-data
+          path: projects/CareMate/evidence/rag-eval-llm-original-qwen.json
           if-no-files-found: warn
