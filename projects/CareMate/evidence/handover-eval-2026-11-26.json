@@ -1,0 +1,839 @@
+{
+  "at": "2026-11-26T01:56:04.001Z",
+  "summary": {
+    "retrieval": "BM25",
+    "llm": "사용 안 함",
+    "questions": {
+      "inScope": 38,
+      "outOfScope": 5
+    },
+    "hitAt1": 92.1,
+    "hitAt4": 100,
+    "inScopeAccepted": 100,
+    "outOfScopeRejected": 60,
+    "decisionAccuracy": 95.3,
+    "retrieveMedianMs": 0,
+    "classifier": {
+      "accuracy": 75,
+      "correct": 18,
+      "total": 24,
+      "errors": {
+        "배송→주문·취소": 1,
+        "배송→교환·반품": 1,
+        "교환·반품→회원·계정": 1,
+        "결제→주문·취소": 1,
+        "회원·계정→A/S·서비스": 1,
+        "주문·취소→환불": 1
+      }
+    }
+  },
+  "rows": [
+    {
+      "q": "배송비는 얼마인가요?",
+      "expect": [
+        "SHP-01"
+      ],
+      "top4": [
+        "REF-02",
+        "SHP-01",
+        "SHP-05",
+        "SHP-06"
+      ],
+      "confidence": 0.45,
+      "inScope": true,
+      "accepted": true,
+      "hit1": false,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "얼마 이상 주문하면 배송비가 무료예요?",
+      "expect": [
+        "SHP-01"
+      ],
+      "top4": [
+        "SHP-01",
+        "REF-02",
+        "SHP-05",
+        "MEM-05"
+      ],
+      "confidence": 0.42,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "오후 3시에 주문하면 언제 출고되나요?",
+      "expect": [
+        "SHP-02"
+      ],
+      "top4": [
+        "SHP-02",
+        "SHP-05",
+        "SHP-04",
+        "SVC-01"
+      ],
+      "confidence": 0.31,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "운송장 번호는 어디서 확인해요?",
+      "expect": [
+        "SHP-03"
+      ],
+      "top4": [
+        "SHP-03",
+        "MEM-05",
+        "PAY-05",
+        "SVC-04"
+      ],
+      "confidence": 0.58,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "이미 출고된 주문의 주소를 바꿀 수 있나요?",
+      "expect": [
+        "SHP-04"
+      ],
+      "top4": [
+        "SHP-04",
+        "ORD-01",
+        "SHP-02",
+        "ORD-04"
+      ],
+      "confidence": 1,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 1
+    },
+    {
+      "q": "새벽배송은 몇 시까지 주문해야 하나요?",
+      "expect": [
+        "SHP-05"
+      ],
+      "top4": [
+        "SHP-05",
+        "SHP-06",
+        "ORD-02",
+        "SHP-04"
+      ],
+      "confidence": 0.67,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "해외로도 배송해 주나요?",
+      "expect": [
+        "SHP-06"
+      ],
+      "top4": [
+        "SHP-06",
+        "PAY-01",
+        "SHP-05",
+        "REF-02"
+      ],
+      "confidence": 0.27,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "택배가 5일이 지나도 안 와요 분실인가요",
+      "expect": [
+        "SHP-07"
+      ],
+      "top4": [
+        "SHP-07",
+        "SVC-02",
+        "PAY-04",
+        "SHP-04"
+      ],
+      "confidence": 0.46,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "상품 받고 며칠 안에 반품할 수 있어요?",
+      "expect": [
+        "REF-01"
+      ],
+      "top4": [
+        "REF-03",
+        "REF-05",
+        "REF-01",
+        "REF-04"
+      ],
+      "confidence": 0.41,
+      "inScope": true,
+      "accepted": true,
+      "hit1": false,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "단순 변심으로 반품하면 배송비는 누가 부담하나요?",
+      "expect": [
+        "REF-02"
+      ],
+      "top4": [
+        "REF-02",
+        "REF-04",
+        "SHP-01",
+        "PAY-06"
+      ],
+      "confidence": 0.84,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "반품 신청은 어디서 하나요?",
+      "expect": [
+        "REF-03"
+      ],
+      "top4": [
+        "REF-03",
+        "REF-01",
+        "REF-04",
+        "REF-02"
+      ],
+      "confidence": 0.52,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 1
+    },
+    {
+      "q": "개봉한 식품은 반품이 되나요?",
+      "expect": [
+        "REF-04"
+      ],
+      "top4": [
+        "REF-04",
+        "REF-01",
+        "REF-02",
+        "REF-03"
+      ],
+      "confidence": 1,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "환불은 며칠 걸려요? 카드 취소는요?",
+      "expect": [
+        "REF-05"
+      ],
+      "top4": [
+        "REF-05",
+        "PAY-04",
+        "PAY-06",
+        "PAY-01"
+      ],
+      "confidence": 0.33,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "다른 사이즈로 교환하고 싶은데 재고가 없으면요?",
+      "expect": [
+        "REF-06"
+      ],
+      "top4": [
+        "REF-06",
+        "MEM-03",
+        "SHP-07",
+        "MEM-06"
+      ],
+      "confidence": 0.81,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "상품이 파손되어 왔어요 어떻게 접수하나요",
+      "expect": [
+        "REF-07"
+      ],
+      "top4": [
+        "REF-07",
+        "SVC-03",
+        "PAY-06",
+        "REF-03"
+      ],
+      "confidence": 0.31,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "어떤 결제 수단을 쓸 수 있나요?",
+      "expect": [
+        "PAY-01"
+      ],
+      "top4": [
+        "PAY-01",
+        "ORD-02",
+        "PAY-04",
+        "PAY-05"
+      ],
+      "confidence": 0.69,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "무통장입금 기한이 지나면 어떻게 되나요?",
+      "expect": [
+        "PAY-02"
+      ],
+      "top4": [
+        "PAY-02",
+        "REF-05",
+        "PAY-01",
+        "PAY-05"
+      ],
+      "confidence": 0.67,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "무이자 할부는 몇 개월까지 되나요?",
+      "expect": [
+        "PAY-03"
+      ],
+      "top4": [
+        "PAY-03",
+        "MEM-01",
+        "MEM-02",
+        "MEM-03"
+      ],
+      "confidence": 0.88,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "결제하다 오류가 났는데 카드 승인 문자만 왔어요",
+      "expect": [
+        "PAY-04"
+      ],
+      "top4": [
+        "PAY-04",
+        "REF-05",
+        "PAY-01",
+        "PAY-03"
+      ],
+      "confidence": 0.5,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "세금계산서는 어떻게 요청하나요?",
+      "expect": [
+        "PAY-05"
+      ],
+      "top4": [
+        "PAY-05",
+        "ORD-03",
+        "SVC-02",
+        "SHP-05"
+      ],
+      "confidence": 0.94,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 1
+    },
+    {
+      "q": "일부 상품만 취소하면 환불은 어떻게 되나요?",
+      "expect": [
+        "PAY-06"
+      ],
+      "top4": [
+        "PAY-06",
+        "REF-05",
+        "MEM-03",
+        "SHP-05"
+      ],
+      "confidence": 0.66,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "골드 등급이 되려면 얼마나 구매해야 하나요?",
+      "expect": [
+        "MEM-01"
+      ],
+      "top4": [
+        "MEM-01",
+        "MEM-04",
+        "SHP-04",
+        "ORD-05"
+      ],
+      "confidence": 0.39,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "포인트 유효기간은 얼마나 되나요?",
+      "expect": [
+        "MEM-02"
+      ],
+      "top4": [
+        "MEM-02",
+        "MEM-03",
+        "REF-05",
+        "PAY-06"
+      ],
+      "confidence": 0.61,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "쿠폰 두 장을 같이 쓸 수 있나요?",
+      "expect": [
+        "MEM-03"
+      ],
+      "top4": [
+        "MEM-03",
+        "MEM-04",
+        "PAY-06",
+        "MEM-06"
+      ],
+      "confidence": 0.38,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "신규 가입하면 어떤 혜택이 있나요?",
+      "expect": [
+        "MEM-04"
+      ],
+      "top4": [
+        "MEM-04",
+        "REF-02",
+        "MEM-05",
+        "PAY-06"
+      ],
+      "confidence": 0.9,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "비밀번호를 잊어버렸어요",
+      "expect": [
+        "MEM-05"
+      ],
+      "top4": [
+        "MEM-05",
+        "SVC-04",
+        "SHP-03",
+        "PAY-05"
+      ],
+      "confidence": 0.4,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "회원 탈퇴하면 포인트는 어떻게 되나요?",
+      "expect": [
+        "MEM-06"
+      ],
+      "top4": [
+        "MEM-06",
+        "MEM-01",
+        "MEM-02",
+        "PAY-06"
+      ],
+      "confidence": 1,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "사진 리뷰를 쓰면 포인트를 얼마나 주나요?",
+      "expect": [
+        "MEM-07"
+      ],
+      "top4": [
+        "MEM-07",
+        "MEM-02",
+        "PAY-06",
+        "MEM-04"
+      ],
+      "confidence": 0.48,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "주문을 취소하고 싶어요",
+      "expect": [
+        "ORD-01"
+      ],
+      "top4": [
+        "ORD-02",
+        "MEM-03",
+        "PAY-06",
+        "ORD-01"
+      ],
+      "confidence": 1,
+      "inScope": true,
+      "accepted": true,
+      "hit1": false,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "주문한 옵션을 바꿀 수 있나요?",
+      "expect": [
+        "ORD-02"
+      ],
+      "top4": [
+        "ORD-02",
+        "SHP-04",
+        "ORD-01",
+        "MEM-03"
+      ],
+      "confidence": 0.46,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "결제했는데 품절이라고 하면 환불되나요?",
+      "expect": [
+        "ORD-03"
+      ],
+      "top4": [
+        "ORD-03",
+        "SHP-07",
+        "PAY-06",
+        "ORD-01"
+      ],
+      "confidence": 0.31,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 1
+    },
+    {
+      "q": "주문 상태가 어떤 순서로 바뀌나요?",
+      "expect": [
+        "ORD-04"
+      ],
+      "top4": [
+        "ORD-04",
+        "ORD-02",
+        "SHP-03",
+        "REF-03"
+      ],
+      "confidence": 0.29,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "선물하기는 언제까지 수락해야 하나요?",
+      "expect": [
+        "ORD-05"
+      ],
+      "top4": [
+        "ORD-05",
+        "MEM-04",
+        "SHP-04",
+        "PAY-02"
+      ],
+      "confidence": 0.69,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "고객센터는 몇 시까지 운영하나요?",
+      "expect": [
+        "SVC-01"
+      ],
+      "top4": [
+        "SVC-01",
+        "PAY-05",
+        "SVC-03",
+        "PAY-04"
+      ],
+      "confidence": 0.73,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "챗봇이 모르는 건 상담원이 답해 주나요?",
+      "expect": [
+        "SVC-02"
+      ],
+      "top4": [
+        "SVC-02",
+        "SHP-03",
+        "SVC-01",
+        "SVC-04"
+      ],
+      "confidence": 0.5,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "전자제품 무상 A/S는 얼마 동안인가요?",
+      "expect": [
+        "SVC-03"
+      ],
+      "top4": [
+        "SVC-03",
+        "MEM-05",
+        "REF-04",
+        "MEM-06"
+      ],
+      "confidence": 0.84,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "챗봇에 카드번호를 입력해도 되나요?",
+      "expect": [
+        "SVC-04"
+      ],
+      "top4": [
+        "SVC-04",
+        "SHP-03",
+        "SVC-01",
+        "SVC-02"
+      ],
+      "confidence": 0.75,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "영수증은 어디서 출력하나요?",
+      "expect": [
+        "SVC-05"
+      ],
+      "top4": [
+        "SVC-05",
+        "PAY-05",
+        "SVC-04",
+        "ORD-05"
+      ],
+      "confidence": 0.46,
+      "inScope": true,
+      "accepted": true,
+      "hit1": true,
+      "hit4": true,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "오늘 서울 날씨 어때?",
+      "expect": [],
+      "top4": [
+        "SHP-05",
+        "MEM-01",
+        "MEM-02",
+        "MEM-03"
+      ],
+      "confidence": 0.55,
+      "inScope": false,
+      "accepted": true,
+      "hit1": false,
+      "hit4": false,
+      "correctDecision": false,
+      "retrieveMs": 1
+    },
+    {
+      "q": "삼성 갤럭시 S25 가격 알려줘",
+      "expect": [],
+      "top4": [
+        "MEM-01",
+        "MEM-02",
+        "MEM-03",
+        "MEM-04"
+      ],
+      "confidence": 0,
+      "inScope": false,
+      "accepted": false,
+      "hit1": false,
+      "hit4": false,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "주식 추천해 줄래?",
+      "expect": [],
+      "top4": [
+        "MEM-01",
+        "MEM-02",
+        "MEM-03",
+        "MEM-04"
+      ],
+      "confidence": 0,
+      "inScope": false,
+      "accepted": false,
+      "hit1": false,
+      "hit4": false,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "파이썬으로 정렬 알고리즘 짜줘",
+      "expect": [],
+      "top4": [
+        "MEM-01",
+        "MEM-02",
+        "MEM-03",
+        "MEM-04"
+      ],
+      "confidence": 0,
+      "inScope": false,
+      "accepted": false,
+      "hit1": false,
+      "hit4": false,
+      "correctDecision": true,
+      "retrieveMs": 0
+    },
+    {
+      "q": "너 이름이 뭐야 몇 살이야",
+      "expect": [],
+      "top4": [
+        "PAY-02",
+        "MEM-01",
+        "MEM-02",
+        "MEM-03"
+      ],
+      "confidence": 0.42,
+      "inScope": false,
+      "accepted": true,
+      "hit1": false,
+      "hit4": false,
+      "correctDecision": false,
+      "retrieveMs": 0
+    }
+  ]
+}

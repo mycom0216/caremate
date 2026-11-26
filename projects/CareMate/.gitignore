@@ -1,3 +1,13 @@
 data/caremate.db*
 data/embeddings.json
 tmp/
+.env
+.env.*
+!.env.example
+node_modules/
+data/*.db
+data/*.db-*
+data/*.db.*
+__pycache__/
+*.pyc
+~$*

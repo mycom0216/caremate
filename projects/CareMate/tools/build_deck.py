@@ -1,4 +1,11 @@
 """최종 발표 PPT 생성: python tools/build_deck.py  →  docs/CareMate_최종발표.pptx"""
+# ─────────────────────────────────────────────────────────────────────────────
+# build_deck.py — 최종 발표 PPT(12장)를 코드로 생성하는 개발 도구 (서비스 실행과는 무관)
+#
+# [필요]  python-pptx 패키지(import pptx). 실행하면 docs/CareMate_최종발표.pptx 가 만들어지고, 슬라이드에 넣을 화면 캡처는 docs/images/ 에서 읽습니다.
+# [구성]  위쪽: 색·글꼴 상수와 도우미 함수(text, box, card, base, pic). 아래쪽: 슬라이드 12장을 차례로 만드는 코드(주석 번호 = 장 번호).
+# [주의]  슬라이드의 정확도·응답시간 같은 수치는 코드에 직접 적힌 값입니다. 평가를 다시 돌려도 자동으로 바뀌지 않으므로 결과가 달라지면 여기서 직접 고쳐야 합니다.
+# ─────────────────────────────────────────────────────────────────────────────
 from pathlib import Path
 
 from pptx import Presentation
@@ -9,6 +16,7 @@ from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Emu, Inches, Pt
 
+# 프로젝트 루트(이 파일의 두 단계 상위)와 이미지 폴더, 글꼴, 색 상수(RGBColor). BRAND 의 색값(4F46E5)은 화면 CSS 의 --brand 와 같습니다.
 ROOT = Path(__file__).resolve().parent.parent
 IMG = ROOT / "docs" / "images"
 FONT = "Malgun Gothic"
@@ -16,12 +24,14 @@ INK, MUTED = RGBColor(0x1C, 0x23, 0x33), RGBColor(0x66, 0x70, 0x85)
 BRAND, SOFT, WHITE = RGBColor(0x4F, 0x46, 0xE5), RGBColor(0xEC, 0xEA, 0xFD), RGBColor(0xFF, 0xFF, 0xFF)
 OK, WARN, BAD, LINE = RGBColor(0x0F, 0x9D, 0x6B), RGBColor(0xD9, 0x77, 0x06), RGBColor(0xD9, 0x2D, 0x20), RGBColor(0xE4, 0xE8, 0xF0)
 
+# 프레젠테이션 객체: 가로 13.333 x 세로 7.5 인치(16:9). BLANK 는 빈 레이아웃(모든 요소를 직접 배치), N 은 전체 장 수(쪽번호 표시용).
 prs = Presentation()
 prs.slide_width, prs.slide_height = Inches(13.333), Inches(7.5)
 BLANK = prs.slide_layouts[6]
 N = 12
 
 
+# 텍스트 상자 추가 도우미. 좌표·크기는 인치 단위(x, y, 너비 w, 높이 h). s 가 리스트면 줄마다 문단을 만들고, 글꼴·크기·굵기·색·정렬·세로 정렬을 지정합니다.
 def text(slide, x, y, w, h, s, size=18, bold=False, color=INK, align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP):
     tb = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
     tf = tb.text_frame
@@ -40,6 +50,7 @@ def text(slide, x, y, w, h, s, size=18, bold=False, color=INK, align=PP_ALIGN.LE
     return tb
 
 
+# 도형(기본: 둥근 사각형) 추가 도우미: 채움색, 선(없으면 선 제거), 그림자 상속 끄기.
 def box(slide, x, y, w, h, fill=SOFT, line=None, shape=MSO_SHAPE.ROUNDED_RECTANGLE):
     s = slide.shapes.add_shape(shape, Inches(x), Inches(y), Inches(w), Inches(h))
     s.fill.solid()
@@ -55,6 +66,7 @@ def box(slide, x, y, w, h, fill=SOFT, line=None, shape=MSO_SHAPE.ROUNDED_RECTANG
     return s
 
 
+# 카드 도우미: 흰 배경 상자 + 왼쪽 강조 막대 + 제목 + 본문(제목·본문 글자 크기 지정 가능).
 def card(slide, x, y, w, h, title, body, accent=BRAND, tsize=17, bsize=14):
     box(slide, x, y, w, h, WHITE, LINE)
     bar = box(slide, x, y, 0.09, h, accent, None, MSO_SHAPE.RECTANGLE)
@@ -62,6 +74,7 @@ def card(slide, x, y, w, h, title, body, accent=BRAND, tsize=17, bsize=14):
     text(slide, x + 0.25, y + 0.68, w - 0.4, h - 0.8, body, bsize, False, MUTED)
 
 
+# 공통 슬라이드 틀: 배경색, 위쪽 띠, 제목, 쪽번호(n / N), 하단 프로젝트명, (있으면) 발표자 노트. 만든 슬라이드를 돌려줍니다.
 def base(title, n, notes=""):
     s = prs.slides.add_slide(BLANK)
     s.background.fill.solid()
@@ -75,6 +88,7 @@ def base(title, n, notes=""):
     return s
 
 
+# 이미지 삽입 도우미: docs/images 의 파일을 폭에 맞춰 넣고 얇은 테두리를 그립니다.
 def pic(slide, name, x, y, w):
     slide.shapes.add_picture(str(IMG / name), Inches(x), Inches(y), width=Inches(w))
     # 얇은 테두리
@@ -171,6 +185,7 @@ text(s, 6.8, 5.2, 6.0, 1.5, ["운영 대시보드", "자동 해결률 · 평균 
 
 # 9 평가
 s = base("평가 결과 (질문 43개, 자체 작성)", 9, "수치는 직접 만든 작은 평가 세트의 결과입니다. 문구 자동 판정은 81.4%, 개발자 수기 검토는 90.7%입니다. 범위 밖 질문은 검색 단계만으로는 60%만 걸러지지만 LLM 검사까지 포함하면 5개 모두 연결 또는 잡담으로 처리됐습니다.")
+# 평가 결과 막대 차트(가로 막대): 5개 항목의 정확도(%)를 라벨과 함께 표시합니다. 값은 직접 입력한 수치입니다.
 cd = CategoryChartData()
 cd.categories = ["검색 hit@1", "검색 hit@4", "답변(문구 판정)", "답변(수기 검토)", "문의 분류(24문장)"]
 cd.add_series("정확도(%)", (92.1, 100, 81.4, 90.7, 75.0))
@@ -225,6 +240,7 @@ text(s, 0.95, 1.7, 11.4, 3.0, ["안내 문서를 근거로 답하고, 모르면 
 card(s, 0.6, 5.1, 5.9, 1.6, "제출물", "기획서 · 결과보고서 · 발표 PPT · 전체 소스 · 실행 스크립트 · 평가 원자료", BRAND, 16, 13)
 card(s, 6.8, 5.1, 5.9, 1.6, "Q & A", "감사합니다.", OK, 16, 18)
 
+# 파일로 저장하고 슬라이드 수를 출력합니다.
 out = ROOT / "docs" / "CareMate_최종발표.pptx"
 prs.save(out)
 print("saved", out, "slides:", len(prs.slides))

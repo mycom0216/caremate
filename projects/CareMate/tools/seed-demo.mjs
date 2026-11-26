@@ -1,5 +1,8 @@
 // 시연용 문의 데이터를 실행 중인 서버에 보냅니다. 사용법: node tools/seed-demo.mjs [http://127.0.0.1:5200]
+// 서버 주소: 첫 번째 인자 또는 로컬 기본 주소.
 const base = process.argv[2] ?? 'http://127.0.0.1:5200';
+// 시연 문의 목록 [사용자 ID, 질문]. 일반 질문·후속 질문·주문 조회·화난 사고성 문의·범위 밖 질문·상담원 요청 등을 섞어 대시보드와 상담원 콘솔이 채워지게 합니다.
+//   같은 사용자 ID(u1, u4)의 연속 질문은 같은 세션이라 후속 질문 맥락 시연도 됩니다.
 const demo = [
   ['u1', '배송비는 얼마인가요?'], ['u1', '50000원 넘으면 무료인가요?'], ['u2', '택배가 3일째 안 와요 언제 오나요'],
   ['u3', 'MM-1005 어디쯤 왔나요?'], ['u4', '반품은 며칠 안에 해야 하나요?'], ['u4', '그럼 배송비는요?'],
@@ -11,11 +14,14 @@ const demo = [
   ['u18', '사진 리뷰 적립금 얼마예요?'], ['u19', '안녕하세요'], ['u20', '무이자 할부 되나요?'], ['u21', '영수증은 어디서 출력해요?'],
   ['u22', '삼성 갤럭시 가격 알려줘'], ['u23', '세금계산서 발행해 주세요'],
 ];
+// 차례로 /api/chat 에 보냅니다. 서버가 세션당 800ms 간격 제한이 있으므로 900ms 씩 쉬며 보냅니다(루프 끝의 대기).
 let n = 0;
 for (const [u, question] of demo) {
   const res = await fetch(base + '/api/chat', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sessionId: 'demo-session-' + u, question }) });
   const r = await res.json();
+  // 응답을 받은 문의 중 약 3개 중 2개에는 고객 평가를 함께 보내(일부는 '도움 안 됨') 대시보드의 만족도 항목이 보이게 합니다. 시연용 가짜 평가입니다.
   if (r.id && n++ % 3 !== 2) await fetch(`${base}/api/inquiries/${r.id}/feedback`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ helpful: n % 5 !== 0 }) });
+  // 결과 상태코드·답변 방식·질문을 한 줄로 출력합니다.
   console.log(res.status, r.generator ?? r.error, question);
   await new Promise((r2) => setTimeout(r2, 900));
 }

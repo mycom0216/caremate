@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CareMate · AI 고객 문의 분석·상담 지원</title>
 <link rel="stylesheet" href="style.css">
+<!-- 화면 뼈대(HTML). 동작은 app.js, 모양은 style.css 가 담당합니다. 아래의 id 값(log, form, q, tickets, kpis ...)은 app.js 가 요소를 찾는 이름이라 바꾸면 화면이 동작하지 않습니다. -->
 </head>
 <body>
+<!-- 상단 바: 로고, 탭 버튼(data-tab 값이 app.js 의 탭 이름과 같음), 서버 상태 표시줄(app.js 가 채움). -->
 <header class="top">
   <div class="brand"><span class="logo" aria-hidden="true">C</span><div><b>CareMate</b><small>AI 고객 문의 분석·상담 지원 시스템 · 모아마켓(가상)</small></div></div>
   <nav id="tabs" role="tablist">
     <button role="tab" data-tab="chat" aria-selected="true">고객 챗봇</button>
+    <!-- 티켓 배지: 미처리 티켓 수(app.js 가 채움). hidden 속성으로 처음엔 숨김. -->
     <button role="tab" data-tab="agent" aria-selected="false">상담원 콘솔 <span id="ticketBadge" class="badge" hidden>0</span></button>
     <button role="tab" data-tab="dash" aria-selected="false">분석 대시보드</button>
     <button role="tab" data-tab="kb" aria-selected="false">지식베이스</button>
@@ -19,15 +22,18 @@
 </header>
 
 <main>
+  <!-- 탭 1: 고객 챗봇. 왼쪽 대화 + 오른쪽 AI 분석·근거 패널. aria-live 는 새 답변을 화면낭독기가 읽게 하는 접근성 속성입니다. -->
   <section id="tab-chat" class="tab">
     <div class="chat-layout">
       <div class="card chat">
         <div id="log" class="log" aria-live="polite"></div>
         <div id="chips" class="chips"></div>
         <form id="form" class="composer" autocomplete="off">
+          <!-- 질문 입력칸: maxlength 500 은 서버 제한(500자)과 같은 값입니다. -->
           <input id="q" maxlength="500" placeholder="궁금한 내용을 입력하세요 (예: 반품 배송비는 누가 내나요?)" aria-label="질문 입력">
           <button id="send" type="submit">보내기</button>
         </form>
+        <!-- 안내문: 카드번호·비밀번호는 입력하지 않도록 알리고, 전화번호·이메일은 서버가 자동으로 가린다는 점을 알립니다. -->
         <p class="hint">카드번호·비밀번호는 입력하지 마세요. 전화번호·이메일은 자동으로 가려져 저장됩니다.</p>
       </div>
       <aside class="card side" aria-label="AI 분석과 근거">
@@ -37,6 +43,7 @@
     </div>
   </section>
 
+  <!-- 탭 2: 상담원 콘솔. 왼쪽 티켓 목록, 오른쪽 선택한 티켓의 상세·답변 작성(hidden = 처음엔 숨김, 탭 전환 시 보임). -->
   <section id="tab-agent" class="tab" hidden>
     <div class="agent-layout">
       <div class="card"><h2>접수된 티켓 <button id="reloadTickets" class="ghost">새로고침</button></h2><ul id="tickets" class="tickets"></ul></div>
@@ -44,11 +51,13 @@
     </div>
   </section>
 
+  <!-- 탭 3: 분석 대시보드. KPI 카드와 막대 차트가 들어갈 빈 영역. -->
   <section id="tab-dash" class="tab" hidden>
     <div id="kpis" class="kpis"></div>
     <div class="grid" id="charts"></div>
   </section>
 
+  <!-- 탭 4: 지식베이스. 전체 항목을 보여 주고, 검색어를 넣으면 RAG 검색기가 찾은 순서와 점수를 보여 줍니다. -->
   <section id="tab-kb" class="tab" hidden>
     <div class="card">
       <h2>지식베이스 <small id="kbCount"></small></h2>
@@ -57,6 +66,7 @@
     </div>
   </section>
 </main>
+<!-- app.js 는 ES 모듈로 불러옵니다(module 스크립트는 문서를 다 읽은 뒤 실행됨). -->
 <script src="app.js" type="module"></script>
 </body>
 </html>
